@@ -56,15 +56,17 @@ GLuint LoadProgram( const char* vert, const char* geom, const char* frag )
 
 GLuint program;
 GLuint VAO;
+const GLuint NumVertices = 6;
+
 void initData()
 {
     const char* vert = GLSL
     (
      410 core,
-     layout( location = 0 ) in vec2 position;
+     layout( location = 0 ) in vec4 position;
      void main()
      {
-         gl_Position = vec4( position, 0.0, 1.0 );
+         gl_Position = position;
      }
      );
     
@@ -74,7 +76,7 @@ void initData()
      out vec4 FragColor;
      void main()
      {
-         FragColor = vec4( 0.6, 1.0, 1.0, 1.0 );
+         FragColor = vec4( 0.0, 0.0, 1.0, 1.0 );
      }
      );
     
@@ -86,28 +88,23 @@ void initData()
     GLuint vertex_buffer = 0;
     glGenBuffers( 1, &vertex_buffer );
     glBindBuffer( GL_ARRAY_BUFFER, vertex_buffer );
-    float data[] =
+    float data[NumVertices][2] =
     {
-        0.0f,0.8f,
-        -0.8f, 0.0f,
-        0.8f,0.0f
-    };
+        {-0.90, -0.90 }, // Triangle 1
+        { 0.85, -0.90 },
+        { -0.90, 0.85 },
+        { 0.90, -0.85 }, // Triangle 2
+        { 0.90, 0.90 },
+        { -0.85, 0.90 }    };
+   
+    
+    GLuint buffer = 0;
+    glGenBuffers( 1, &buffer );
+    glBindBuffer( GL_ARRAY_BUFFER, buffer );
     glBufferData( GL_ARRAY_BUFFER, sizeof(data), data, GL_STATIC_DRAW );
-    
-    GLuint index_buffer = 0;
-    glGenBuffers( 1, &index_buffer );
-    glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, index_buffer );
-    unsigned int indexes[] =
-    {
-        0,1,2
-    };
-    glBufferData( GL_ELEMENT_ARRAY_BUFFER, sizeof(indexes), indexes, GL_STATIC_DRAW );
-    
+    glVertexAttribPointer( 0, 2, GL_FLOAT, GL_FALSE, 0, 0 );
     glEnableVertexAttribArray( 0 );
     
-    glVertexAttribPointer( 0, 2, GL_FLOAT, GL_FALSE, 0, 0 );
-    
-    glBindVertexArray( 0 );
 }
 
 int main( int argc, char** argv )
@@ -153,11 +150,10 @@ int main( int argc, char** argv )
         
         glUseProgram( program );
         glBindVertexArray( VAO );
-        glDrawElements( GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0 );
+        glDrawArrays( GL_TRIANGLES, 0, NumVertices );
         glBindVertexArray( 0 );
         
         glfwSwapBuffers( window );
-        
         glfwPollEvents();
     }
     
